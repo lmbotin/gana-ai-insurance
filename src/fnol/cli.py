@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-CLI for parsing FNOL claims.
+CLI for parsing Track & Trace / AI Operational Liability claims.
 
 Usage:
-    python -m src.fnol.cli --text "damage description" --images img1.jpg img2.jpg
-    python -m src.fnol.cli --text-file fixtures/claim01.txt --images fixtures/*.jpg
+    python -m src.fnol.cli --text "incident description" --images log1.json log2.json
+    python -m src.fnol.cli --text-file fixtures/incident01.txt
 """
 
 import argparse
@@ -36,24 +36,24 @@ def read_text_file(path: str) -> str:
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description='Parse FNOL claims from text and images',
+        description='Parse Track & Trace / AI Operational Liability claims',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Parse with inline text
-  python -m src.fnol.cli --text "Pipe burst causing water damage" --images img1.jpg img2.jpg
+  python -m src.fnol.cli --text "Shipment delayed 48 hours due to routing model failure" --pretty
 
   # Parse with text file
-  python -m src.fnol.cli --text-file fixtures/claim01.txt --images fixtures/img*.jpg
+  python -m src.fnol.cli --text-file fixtures/incident01.txt
 
   # Parse with claimant info
-  python -m src.fnol.cli --text "Fire damage" --claimant-name "John Doe" --policy-number POL-123
+  python -m src.fnol.cli --text "Package lost at HUB-LAX-03" --claimant-name "Acme Corp" --policy-number POL-TT-123
 
   # Use mock LLM (no API key needed)
-  python -m src.fnol.cli --text "Water damage" --llm-provider mock
+  python -m src.fnol.cli --text "AI prediction failure caused misroute" --llm-provider mock
 
   # Pretty print output
-  python -m src.fnol.cli --text "Water damage" --pretty
+  python -m src.fnol.cli --text "System outage at sorting facility" --pretty
         """
     )
 
@@ -203,9 +203,9 @@ def main():
 
         logger.info(f"Claim parsed successfully: {claim.claim_id}")
 
-        # Convert to JSON
+        # Convert to JSON (Pydantic v2 compatible)
         indent = 2 if args.pretty else None
-        json_output = claim.json(indent=indent, ensure_ascii=False)
+        json_output = claim.model_dump_json(indent=indent)
 
         # Output
         if args.output:
@@ -223,9 +223,10 @@ def main():
             print("EXTRACTION SUMMARY", file=sys.stderr)
             print("="*60, file=sys.stderr)
             print(f"Claim ID: {claim.claim_id}", file=sys.stderr)
-            print(f"Damage Type: {claim.incident.damage_type.value}", file=sys.stderr)
-            print(f"Property Type: {claim.property_damage.property_type.value}", file=sys.stderr)
-            print(f"Damage Photos: {claim.evidence.damage_photo_count}", file=sys.stderr)
+            print(f"Incident Type: {claim.incident.incident_type.value}", file=sys.stderr)
+            print(f"Asset Type: {claim.operational_impact.asset_type.value}", file=sys.stderr)
+            print(f"Impact Severity: {claim.operational_impact.impact_severity.value}", file=sys.stderr)
+            print(f"System Logs: {claim.evidence.system_log_count}", file=sys.stderr)
             print(f"Missing Evidence: {len(claim.evidence.missing_evidence)}", file=sys.stderr)
             print(f"Conflicts: {len(claim.consistency.conflict_details)}", file=sys.stderr)
             print("="*60, file=sys.stderr)
