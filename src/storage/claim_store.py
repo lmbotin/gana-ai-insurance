@@ -30,7 +30,7 @@ class StoredClaim:
     # Claim data (JSON)
     claimant: dict
     incident: dict
-    property_damage: dict
+    property_damage: dict  # Legacy name, also stores operational_impact data
     evidence: dict
     
     # Processing results (JSON, nullable)
@@ -399,7 +399,7 @@ class ClaimStore:
                 INSERT OR REPLACE INTO resolved_claims
                 (claim_id, policy_number, amount, resolved_at, resolution_type, resolved_by)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (claim_id, policy_number, amount, now, resolution_type, resolved_by or "system")
+            """, (claim_id, policy_number, amount, now, resolution_type, resolved_by or "system"))
             conn.commit()
         return True
 
@@ -418,7 +418,7 @@ class ClaimStore:
                 INSERT OR REPLACE INTO non_resolved_claims
                 (claim_id, policy_number, amount, reason_not_resolved, created_at, notes)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (claim_id, policy_number, amount, reason_not_resolved, now, notes)
+            """, (claim_id, policy_number, amount, reason_not_resolved, now, notes))
             conn.commit()
         return True
 
@@ -470,7 +470,7 @@ class ClaimStore:
             pass
         operational_impact = None
         try:
-            if row.get("operational_impact"):
+            if row["operational_impact"]:
                 operational_impact = json.loads(row["operational_impact"])
         except (KeyError, IndexError, TypeError):
             pass

@@ -4,7 +4,7 @@ Audio Bridge: Coordinates audio flow between Twilio and OpenAI Realtime API.
 This module handles:
 - Bidirectional audio streaming (Twilio <-> OpenAI)
 - Barge-in detection and handling
-- Property damage claim state management during the call
+- Operational liability claim state management during the call
 - Transcript extraction and field population
 - Claim completeness checking and guided information gathering
 """
@@ -16,7 +16,8 @@ from typing import Optional
 
 from fastapi import WebSocket  # type: ignore[import-untyped]
 
-from ..fnol import PropertyClaimExtractor, PropertyClaimStateManager
+from ..fnol.extractor import OperationalClaimExtractor
+from ..fnol.state_manager import OperationalClaimStateManager
 from ..fnol.checker import check_claim, CheckReport
 from ..policy import get_policy_service
 from .openai_realtime import OpenAIRealtimeClient
@@ -33,8 +34,8 @@ COMPLETENESS_THRESHOLD = 0.75
 class AudioBridge:
     """
     Bridges audio between Twilio Media Streams and OpenAI Realtime API.
-    
-    Manages the full lifecycle of a property damage claim intake call, including:
+
+    Manages the full lifecycle of an operational liability claim intake call, including:
     - Audio forwarding in both directions
     - Barge-in (interruption) handling
     - Claim state tracking and updates
@@ -58,9 +59,9 @@ class AudioBridge:
         self._on_call_started = on_call_started
         
         # Initialize components
-        self.claim_state = PropertyClaimStateManager(call_sid=call_sid)
+        self.claim_state = OperationalClaimStateManager(call_sid=call_sid)
         self.openai_client = OpenAIRealtimeClient()
-        self.extractor = PropertyClaimExtractor()
+        self.extractor = OperationalClaimExtractor()
         
         # Keep backwards compatibility alias
         self.fnol_state = self.claim_state

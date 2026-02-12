@@ -218,14 +218,23 @@ def _extract_claimant_from_text(text: str) -> dict:
         if 2 <= len(name) <= 120 and re.match(r"^[A-Za-z0-9\s&\'\-\.]+$", name):
             out["claimant.name"] = name
 
-    # Name: explicit "I am X and policy number" / "X and policy number" first (most reliable)
+    # Name: "claim for X, policy" or "claim for X and policy" pattern (common in user messages)
     m = re.search(
-        r"(?:i\s+am|we\s+are|company\s*(?:name)?\s*is|policyholder\s*is|this\s+is|(?:my\s+)?name\s+is)\s+([A-Za-z0-9\s&\'\-\.]+?)\s+and\s+(?:policy|the\s+policy)",
+        r"claim\s+for\s+([A-Za-z0-9\s&\'\-\.]+?)(?:\s*,\s*policy|\s+and\s+policy|\s+policy)",
         t,
         re.IGNORECASE,
     )
     if m:
         _set_name(m.group(1))
+    # Name: explicit "I am X and policy number" / "X and policy number" first (most reliable)
+    if "claimant.name" not in out:
+        m = re.search(
+            r"(?:i\s+am|we\s+are|company\s*(?:name)?\s*is|policyholder\s*is|this\s+is|(?:my\s+)?name\s+is)\s+([A-Za-z0-9\s&\'\-\.]+?)\s+and\s+(?:policy|the\s+policy)",
+            t,
+            re.IGNORECASE,
+        )
+        if m:
+            _set_name(m.group(1))
     if "claimant.name" not in out:
         m = re.search(
             r"(?:i\s+am|my\s+name\s+is|i'?m|company\s*(?:name)?\s*is|policyholder\s*is|this\s+is|we\s+are)\s+([^.?!,:\n]+)",
@@ -256,14 +265,15 @@ def _infer_pricing_error_loss(text: str) -> Optional[float]:
         m = re.search(keyword_re + r".{0,40}?(\$?\s*\d[\d,]*(?:\.\d+)?)", t)
         if not m:
             return None
-        raw = m.group(1).replace("$", "").replace(",", "").strip()
+        # Get the last group (the number), since keyword is in group 1
+        raw = m.groups()[-1].replace("$", "").replace(",", "").strip()
         try:
             return float(raw)
         except Exception:
             return None
 
-    sold = _money_after(r"(sold\s+for|sold\s+at|price\s+was|priced\s+at|negotiated\s+price\s+was|revenue\s+was)")
-    cost = _money_after(r"(cost\s+was|cost\s+is|costing|our\s+cost\s+was|expense\s+was|cogs\s+was)")
+    sold = _money_after(r"(sold\s+for|sold\s+at|price\s+was|priced\s+at|negotiated\s+price\s+was|revenue\s+was|charged|we\s+charged|quoted\s+at|quoted)")
+    cost = _money_after(r"(cost\s+was|cost\s+is|costing|our\s+cost\s+was|expense\s+was|cogs\s+was|cost\s+us|costs\s+us|actual\s+cost)")
     if sold is None or cost is None:
         return None
     loss = cost - sold
@@ -275,10 +285,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS for web frontend
+# CORS for web frontend - configure via CORS_ALLOWED_ORIGINS env var
+# Default: "*" (all origins) for development
+# Production: Set CORS_ALLOWED_ORIGINS=https://your-frontend.com,https://other-domain.com
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict to your frontend domain
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

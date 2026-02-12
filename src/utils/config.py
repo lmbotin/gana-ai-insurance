@@ -63,6 +63,19 @@ class Settings(BaseSettings):
     host: str = Field(default="0.0.0.0", description="Server host")
     port: int = Field(default=8000, description="Server port")
     debug: bool = Field(default=False, description="Enable debug mode")
+
+    # CORS Configuration (for web chat frontend)
+    cors_allowed_origins: str = Field(
+        default="*",
+        description="Comma-separated list of allowed CORS origins. Use '*' for all (dev only).",
+    )
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parse CORS origins into a list."""
+        if self.cors_allowed_origins == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
     
     # Voice Agent Configuration
     silence_duration_ms: int = Field(

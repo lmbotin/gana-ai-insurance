@@ -1,12 +1,12 @@
 """
-Property damage claim processing workflow.
+Operational liability claim processing workflow.
 
-Handles post-call claim processing:
+Handles post-call/chat claim processing:
 - Validation & completeness check (delegates to fnol.checker)
 - Fraud risk scoring
 - Claim routing decisions
 
-This runs AFTER the real-time voice call completes.
+This runs AFTER the voice call or chat session completes.
 """
 
 import json
@@ -18,7 +18,7 @@ from typing import Any, Optional, TYPE_CHECKING
 from openai import AsyncOpenAI
 
 from ..fnol.checker import check_claim, CheckReport
-from ..fnol.schema import PropertyDamageClaim
+from ..fnol.schema import OperationalLiabilityClaim
 from ..storage.claim_store import get_claim_store
 from ..policy import get_policy_service
 
@@ -180,42 +180,42 @@ def _get_nested(data: dict, path: str, default=None):
 # =============================================================================
 
 
-def validate_claim_from_schema(claim: PropertyDamageClaim) -> tuple[bool, list[str], list[str], CheckReport]:
+def validate_claim_from_schema(claim: OperationalLiabilityClaim) -> tuple[bool, list[str], list[str], CheckReport]:
     """
-    Validate a PropertyDamageClaim using the checker module.
-    
+    Validate an OperationalLiabilityClaim using the checker module.
+
     Args:
-        claim: PropertyDamageClaim object
-        
+        claim: OperationalLiabilityClaim object
+
     Returns:
         Tuple of (is_complete, missing_fields, validation_errors, check_report)
     """
     # Delegate to the comprehensive checker
     report = check_claim(claim)
-    
+
     # Additional data quality checks not covered by checker
     errors = []
-    
+
     policy_number = claim.claimant.policy_number
     if policy_number and len(str(policy_number)) < 4:
         errors.append("Policy number appears invalid (too short)")
-    
+
     phone = claim.claimant.contact_phone
     if phone and len(str(phone).replace("-", "").replace(" ", "")) < 10:
         errors.append("Phone number appears incomplete")
-    
-    # Check for estimated repair cost validity
-    repair_cost = claim.property_damage.estimated_repair_cost
-    if repair_cost is not None and repair_cost < 0:
-        errors.append("Estimated repair cost cannot be negative")
-    
+
+    # Check for estimated liability cost validity
+    liability_cost = claim.operational_impact.estimated_liability_cost
+    if liability_cost is not None and liability_cost < 0:
+        errors.append("Estimated liability cost cannot be negative")
+
     # Add any contradictions from checker as errors
     errors.extend(report.contradictions)
-    
+
     # Determine completeness based on checker score and required fields
     # Score >= 0.6 means tier 1 critical fields are mostly present
     is_complete = report.completeness_score >= 0.6 and len(errors) == 0
-    
+
     return is_complete, report.missing_required_evidence, errors, report
 
 
@@ -223,8 +223,8 @@ def validate_claim(claim_data: dict) -> tuple[bool, list[str], list[str]]:
     """
     Validate claim completeness and data quality.
     Supports both property damage and operational (AI logistics / pricing) claims.
-    For PropertyDamageClaim objects, use validate_claim_from_schema().
-    
+    For OperationalLiabilityClaim objects, use validate_claim_from_schema().
+
     Returns:
         Tuple of (is_complete, missing_fields, validation_errors)
     """
@@ -496,17 +496,18 @@ def get_next_actions(routing_decision: RoutingDecision) -> tuple[str, list[str]]
 
 class ClaimProcessor:
     """
-    Process property damage claims through validation, fraud analysis, and routing.
+    Process claims through validation, fraud analysis, and routing.
+    Supports operational liability claims (AI logistics) and legacy property damage claims.
     """
-    
+
     async def process_claim(self, claim_data: dict, call_sid: str = "") -> ClaimProcessingResult:
         """
-        Process a property damage claim through the full workflow.
-        
+        Process a claim through the full workflow.
+
         Args:
-            claim_data: The claim data from the voice call
-            call_sid: Twilio call SID for reference
-            
+            claim_data: The claim data from the voice call or chat session
+            call_sid: Call/session SID for reference
+
         Returns:
             ClaimProcessingResult with all processing details
         """
