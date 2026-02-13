@@ -1,6 +1,7 @@
-# Rex AI Insurance Platform
+# Rex AI insurance platform
 
-CS224G Project — Luis Botin (lmbotin@stanford.edu) and Jesus Santos (jsaranda@stanford.edu)
+CS224G Project
+Luis Botin (lmbotin@stanford.edu) and Jesus Santos (jsaranda@stanford.edu)
 
 AI-native insurance platform for operational/ AI liability claims.
 
@@ -45,7 +46,7 @@ Prerequisites:
 - Node.js >= 18 (tested with v20+)
 - npm (comes with Node.js)
 
-**Frontend only (mock UI— no AI chat)**
+**Frontend only (mock UI, no AI chat)**
 
 This gets the full UI running locally. The dashboard, policies, claims pages all work with browser-local data. The "Chat with Sarah" feature will not work without backend
 
@@ -114,7 +115,7 @@ cd Rex/frontend
 npm run dev
 ```
 
-Then go to http://localhost:5173, sign up, navigate to Claims > Chat with Sarah and start a conversation.
+Then go to http://localhost:5173, sign up, navigate to Claims > Chat with Sarah and start a conversation
 
 ---
 
@@ -122,21 +123,21 @@ Then go to http://localhost:5173, sign up, navigate to Claims > Chat with Sarah 
 
 ```
 Rex/
-├── backend/                 # Python FastAPI backend (deployed on Render)
+├── backend/                 # python FastAPI backend (deployed on Render)
 │   ├── src/
-│   │   ├── web/chat_app.py  # Chat API — the core AI agent
-│   │   ├── fnol/            # Claim extraction pipeline (text + images)
+│   │   ├── web/chat_app.py  # Chat API (the core AI agent)
+│   │   ├── fnol/            # claim extraction pipeline (text + images)
 │   │   ├── policy/          # Policy verification service
-│   │   ├── routing/         # Claims routing & workflow
+│   │   ├── routing/         # Claims routing and workflow
 │   │   ├── voice/           # Twilio voice agent (separate feature)
-│   │   └── utils/           # Config & utilities
+│   │   └── utils/           # Config and utilities
 │   ├── requirements.txt
 │   ├── Procfile             # Render deployment
 │   └── runtime.txt          # Python 3.11
 │
-├── frontend/                # React + Vite frontend (deployed on Vercel)
+├── frontend/                # React+ Vite frontend (deployed on Vercel)
 │   ├── src/
-│   │   ├── pages/dashboard/ # Overview, Claims, Policies, Copilot, etc.
+│   │   ├── pages/dashboard/ # Overview, Claims, Policies, Copilot, etc
 │   │   ├── components/      # ChatInterface, UI components (shadcn/ui)
 │   │   ├── hooks/useChat.js # Chat state management hook
 │   │   ├── lib/             # Utilities, API clients, storage
@@ -166,7 +167,7 @@ The backend requires an OpenAI API key. Copy `.env.example` to `backend/.env` an
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-All other variables are optional with sensible defaults. See `.env.example` for full list (Twilio keys are only needed for the voice agent feature).
+All other variables are optional with any reasonble defaults. See `.env.example` for full list (Twilio keys are only needed for voice agent feature).
 
 ---
 
