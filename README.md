@@ -1,13 +1,12 @@
-# Rex AI insurance platform
+## Rex AI insurance platform
 
-CS224G Project
-Luis Botin (lmbotin@stanford.edu) and Jesus Santos (jsaranda@stanford.edu)
+CS224G Project: Luis Botin (lmbotin@stanford.edu) and Jesus Santos (jsaranda@stanford.edu)
 
 AI-native insurance platform for operational/ AI liability claims.
 
 ---
 
-**Current demo status**
+**<u>Current demo status<u>**
 
 Easiest way to see the demo today is
 
@@ -16,7 +15,7 @@ Easiest way to see the demo today is
 3. Once inside the dashboard you'll see:
 
 - Overview — mock UI, hardcoded dashboard metrics and charts
-- Policies — mock UI, local-only policy creation flow (no backend)
+- Policies — mock UI, local only policy creation flow (no backend)
 - Claims > Chat with Sarah — live AI, connected to the real FastAPI backend on Render, powered by GPT-4o
 - Rex AI (Copilot) — hardcoded pattern-matched responses, not connected to any LLM for the moment (the plan is for Rexy to be the general, all purpose agent connecting all parts of the platform)
 
@@ -40,7 +39,7 @@ Everything else (Overview, Policies, Rex AI copilot) is placeholder UI to show t
 
 ---
 
-**Running locally** (same as above, just locally, without render/vercel)
+**<u>Running locally<u>** (same as above, just locally, without render/vercel)
 
 Prerequisites:
 - Node.js >= 18 (tested with v20+)
@@ -119,7 +118,7 @@ Then go to http://localhost:5173, sign up, navigate to Claims > Chat with Sarah 
 
 ---
 
-**Project structure**
+**<u>Project structure<u>**
 
 ```
 Rex/
@@ -152,14 +151,14 @@ Rex/
 └── README.md
 ```
 
-**Tech stack**
+**<u>Tech stack<u>**
 
 - Frontend — React 19, Vite, Tailwind CSS, Radix UI, Recharts
 - Backend — Python 3.11, FastAPI, Uvicorn
 - AI — OpenAI GPT-4o (chat + vision + extraction)
 - Deployment — Vercel (frontend), Render (backend)
 
-**Environment vars**
+**<u>Environment vars<u>**
 
 The backend requires an OpenAI API key. Copy `.env.example` to `backend/.env` and set:
 
@@ -171,7 +170,7 @@ All other variables are optional with any reasonble defaults. See `.env.example`
 
 ---
 
-**Deployment**
+**<u>TDeployment<u>**
 
 - Frontend: Vercel — root directory: `frontend/`, build command: `npm run build`, output: `dist/`
 - Backend: Render — root directory: `backend/`, start command: `uvicorn src.web.chat_app:app --host 0.0.0.0 --port $PORT`
