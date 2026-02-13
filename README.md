@@ -14,10 +14,10 @@ Easiest way to see the demo today is
 2. Click Sign Up and create an account (any email/password. Stored in browser localStorage.)
 3. Once inside the dashboard you'll see:
 
-- Overview — mock UI, hardcoded dashboard metrics and charts
-- Policies — mock UI, local only policy creation flow (no backend)
-- Claims > Chat with Sarah — live AI, connected to the real FastAPI backend on Render, powered by GPT-4o
-- Rex AI (Copilot) — hardcoded pattern-matched responses, not connected to any LLM for the moment (the plan is for Rexy to be the general, all purpose agent connecting all parts of the platform)
+- Overview: mock UI, hardcoded dashboard metrics and charts
+- Policies: mock UI, local only policy creation flow (no backend)
+- Claims > Chat with Sarah: live AI, connected to the real FastAPI backend on Render and powered by GPT-4o
+- Rex AI (Copilot): hardcoded pattern matched responses, not connected to any LLM for the moment (the plan is for Rexy to be the general, all purpose agent connecting all parts of the platform)
 
 The core demo right now is "Chat with Sarah" inside the Claims page. This is the only feature currently connected to the actual backend AI agent (hosted on Render). Sarah walks you through filing an operational liability claim (verifies policy, collects incident details, processes claim through the routing pipeline...). On the right you see all extracted data, and a claim ID is created. 
 
